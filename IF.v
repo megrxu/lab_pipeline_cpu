@@ -37,7 +37,7 @@ module IF(clk, reset, Z, J, JR, PC_IFWrite, JumpAddr,
 
 
 
-	
+  
 //PC REG
 
 
@@ -45,11 +45,11 @@ module IF(clk, reset, Z, J, JR, PC_IFWrite, JumpAddr,
 //Adder for NextPC
 
 
-  	
-	  
+    
+    
 //ROM
 InstructionROM  InstructionROM(
-	.addr(PC[7:2]),
-	.dout(Instruction_if));
-	
+  .addr(PC[7:2]),
+  .dout(Instruction_if));
+  
 endmodule

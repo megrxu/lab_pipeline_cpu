@@ -20,8 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 module MipsPipelineCPU(clk, reset, JumpFlag, Instruction_id, ALU_A, 
                      ALU_B, ALUResult, PC, MemDout_wb,Stall
-						//	,DataTest,ControlTest
-							);
+            //  ,DataTest,ControlTest
+              );
     input clk;
     input reset;
     output[2:0] JumpFlag;
@@ -34,73 +34,73 @@ module MipsPipelineCPU(clk, reset, JumpFlag, Instruction_id, ALU_A,
     output Stall;
 //  output[31:0] DataTest;
 //  output    ControlTest;
-	 
+   
 //IF  module
     wire[31:0] Instruction_id;
-	 wire PC_IFWrite,J,JR,Z,IF_flush;
-	 wire[31:0] JumpAddr,JrAddr,BranchAddr,NextPC_if,Instruction_if;
-	 assign JumpFlag={JR,J,Z};
-	 assign IF_flush=Z || J ||JR;
-	
-	IF IF(
-//input	
-	 .clk(clk), 
-	 .reset(reset), 
-	 .Z(Z), 
-	 .J(J), 
-	 .JR(JR), 
-	 .PC_IFWrite(PC_IFWrite), 
-	 .JumpAddr(JumpAddr), 
-	 .JrAddr(JrAddr), 
-	 .BranchAddr(BranchAddr), 
+   wire PC_IFWrite,J,JR,Z,IF_flush;
+   wire[31:0] JumpAddr,JrAddr,BranchAddr,NextPC_if,Instruction_if;
+   assign JumpFlag={JR,J,Z};
+   assign IF_flush=Z || J ||JR;
+  
+  IF IF(
+//input  
+   .clk(clk), 
+   .reset(reset), 
+   .Z(Z), 
+   .J(J), 
+   .JR(JR), 
+   .PC_IFWrite(PC_IFWrite), 
+   .JumpAddr(JumpAddr), 
+   .JrAddr(JrAddr), 
+   .BranchAddr(BranchAddr), 
 //  output
-	 .Instruction_if(Instruction_if),
-	 .PC(PC),
-	 .NextPC_if(NextPC_if));
+   .Instruction_if(Instruction_if),
+   .PC(PC),
+   .NextPC_if(NextPC_if));
  
 //   IF->ID Register
 
 
 
      
-//  ID Module	
+//  ID Module  
     wire[4:0] RtAddr_id,RdAddr_id,RsAddr_id;
     wire  RegWrite_wb,MemRead_ex,MemtoReg_id,RegWrite_id,MemWrite_id;
     wire  MemRead_id,ALUSrcA_id,ALUSrcB_id,RegDst_id,stall;
     wire[4:0]  RegWriteAddr_wb,RegWriteAddr_ex,ALUCode_id;
     wire[31:0] RegWriteData_wb,Imm_id,Sa_id,RsData_id,RtData_id;
     ID  ID (
-	       .clk(clk),
-		.Instruction_id(Instruction_id), 
-		.NextPC_id(NextPC_id), 
-		.RegWrite_wb(RegWrite_wb), 
-		.RegWriteAddr_wb(RegWriteAddr_wb), 
-		.RegWriteData_wb(RegWriteData_wb), 
-		.MemRead_ex(MemRead_ex), 
+         .clk(clk),
+    .Instruction_id(Instruction_id), 
+    .NextPC_id(NextPC_id), 
+    .RegWrite_wb(RegWrite_wb), 
+    .RegWriteAddr_wb(RegWriteAddr_wb), 
+    .RegWriteData_wb(RegWriteData_wb), 
+    .MemRead_ex(MemRead_ex), 
               .RegWriteAddr_ex(RegWriteAddr_ex), 
-		.MemtoReg_id(MemtoReg_id), 
-		.RegWrite_id(RegWrite_id), 
-		.MemWrite_id(MemWrite_id), 
-		.MemRead_id(MemRead_id), 
-		.ALUCode_id(ALUCode_id), 
-		.ALUSrcA_id(ALUSrcA_id), 
-		.ALUSrcB_id(ALUSrcB_id), 
-		.RegDst_id(RegDst_id), 
-		.Stall(Stall), 
-		.Z(Z), 
-		.J(J), 
-		.JR(JR), 
-		.PC_IFWrite(PC_IFWrite),  
-		.BranchAddr(BranchAddr), 
-		.JumpAddr(JumpAddr),
-		.JrAddr(JrAddr),
-		.Imm_id(Imm_id), 
-		.Sa_id(Sa_id), 
-		.RsData_id(RsData_id), 
-		.RtData_id(RtData_id),
-		.RtAddr_id(RtAddr_id),
-		.RdAddr_id(RdAddr_id),
-		.RsAddr_id(RsAddr_id));
+    .MemtoReg_id(MemtoReg_id), 
+    .RegWrite_id(RegWrite_id), 
+    .MemWrite_id(MemWrite_id), 
+    .MemRead_id(MemRead_id), 
+    .ALUCode_id(ALUCode_id), 
+    .ALUSrcA_id(ALUSrcA_id), 
+    .ALUSrcB_id(ALUSrcB_id), 
+    .RegDst_id(RegDst_id), 
+    .Stall(Stall), 
+    .Z(Z), 
+    .J(J), 
+    .JR(JR), 
+    .PC_IFWrite(PC_IFWrite),  
+    .BranchAddr(BranchAddr), 
+    .JumpAddr(JumpAddr),
+    .JrAddr(JrAddr),
+    .Imm_id(Imm_id), 
+    .Sa_id(Sa_id), 
+    .RsData_id(RsData_id), 
+    .RtData_id(RtData_id),
+    .RtAddr_id(RtAddr_id),
+    .RdAddr_id(RdAddr_id),
+    .RsAddr_id(RsAddr_id));
 
 //   ID->EX  Register
 
@@ -108,7 +108,7 @@ module MipsPipelineCPU(clk, reset, JumpFlag, Instruction_id, ALU_A,
 
 
 
-// EX Module	 
+// EX Module   
  wire[31:0] ALUResult_mem,ALUResult_ex,MemWriteData_ex;
  wire[4:0] RegWriteAddr_mem;
  wire RegWrite_mem;
@@ -146,12 +146,12 @@ assign ALUResult=ALUResult_ex;
 
 
 //MEM Module
-	DataRAM   DataRAM(
-	.addr(ALUResult_mem[7:2]),
-	.clk(clk),
-	.din(MemWriteData_mem),
-	.dout(MemDout_wb),
-	.we(MemWrite_mem));
+  DataRAM   DataRAM(
+  .addr(ALUResult_mem[7:2]),
+  .clk(clk),
+  .din(MemWriteData_mem),
+  .dout(MemDout_wb),
+  .we(MemWrite_mem));
 
 //MEM->WB
   

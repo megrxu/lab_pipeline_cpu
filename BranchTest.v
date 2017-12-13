@@ -7,30 +7,29 @@
 //******************************************************************************
 
 module BranchTest(   
-	// Outputs
-	Z,
-	
-	// Inputs
-	ALUCode, RsData, RtData
+  // Outputs
+  Z,
+  // Inputs
+  ALUCode, RsData, RtData
 );
 
-	
-	input [31:0]	RsData;			// RsData
-	input [31:0]	RtData;
-	input [4:0]  ALUCode; // ALU operation select
-	output reg Z;
-	
-	
+  
+  input [31:0]  RsData;      // RsData
+  input [31:0]  RtData;
+  input [4:0]  ALUCode; // ALU operation select
+  output reg Z;
+  
+  
 //******************************************************************************
 //  ALUCode 
 //******************************************************************************//
-	
-	parameter	 alu_beq=  5'b01010;
-  parameter	 alu_bne=  5'b01011;
-	parameter	 alu_bgez= 5'b01100;
-  parameter	 alu_bgtz= 5'b01101;
-  parameter	 alu_blez= 5'b01110;
-  parameter	 alu_bltz= 5'b01111;
+  
+  parameter alu_beq  = 5'b01010;
+  parameter alu_bne  = 5'b01011;
+  parameter alu_bgez = 5'b01100;
+  parameter alu_bgtz = 5'b01101;
+  parameter alu_blez = 5'b01110;
+  parameter alu_bltz = 5'b01111;
   
   always @(*)
   begin
@@ -44,6 +43,6 @@ module BranchTest(
       default:  Z = 0;
     endcase
   end
-		
+    
 
 endmodule

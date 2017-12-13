@@ -19,16 +19,17 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module mux2(A, B, sel, out);
-	input [31:0]A;
-	input [31:0]B;
-	input sel;
-	output reg[31:0] out;
-	
-	always @(*)
-		begin
-			case(sel)
-				0: out = A;
-				1: out = B;
-			endcase
-		end
+  parameter N = 31;
+  input [N:0]A;
+  input [N:0]B;
+  input sel;
+  output reg[N:0] out;
+  
+  always @(*)
+    begin
+      case(sel)
+        0: out = A;
+        1: out = B;
+      endcase
+    end
 endmodule

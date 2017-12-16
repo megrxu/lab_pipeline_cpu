@@ -77,7 +77,6 @@ module ID(clk,Instruction_id, NextPC_id, RegWrite_wb, RegWriteAddr_wb, RegWriteD
 
 
 //JrAddress
-  
   assign JrAddr = RsData_id;
 
 //Zero test
@@ -141,6 +140,5 @@ module ID(clk,Instruction_id, NextPC_id, RegWrite_wb, RegWriteAddr_wb, RegWriteD
   //MUX for RsData_id  &  MUX for RtData_id
   mux2 mux2_1(RsData_temp, RegWriteData_wb, RsSel, RsData_id);
   mux2 mux2_2(RtData_temp, RegWriteData_wb, RtSel, RtData_id);
-   
 
 endmodule

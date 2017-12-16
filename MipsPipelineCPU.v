@@ -139,7 +139,7 @@ module MipsPipelineCPU(clk, reset, JumpFlag, Instruction_id, ALU_A,
 assign ALUResult=ALUResult_ex;
 
 //EX->MEM
-   
+
 
 
 
@@ -154,8 +154,7 @@ assign ALUResult=ALUResult_ex;
   .we(MemWrite_mem));
 
 //MEM->WB
-  
-  
+
 
 //WB
   assign RegWriteData_wb=MemToReg_wb?MemDout_wb:ALUResult_wb;

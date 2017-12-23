@@ -59,14 +59,18 @@ module MipsPipelineCPU(clk, reset, JumpFlag, Instruction_id, ALU_A,
    .NextPC_if(NextPC_if));
  
 //   IF->ID Register
+wire IF_reg1;
+wire ID_reg1;
 
+assign IF_reg1 = {NextPC_if, Instruction_if}
+assign ID_reg1 = {NextPC_id, Instruction_id}
 
+dffre #( .WIDTH(64)) IF_ID(IF_reg1 , PC_IFWrite, IF_flush, clk, ID_reg1);
 
-     
 //  ID Module  
     wire[4:0] RtAddr_id,RdAddr_id,RsAddr_id;
     wire  RegWrite_wb,MemRead_ex,MemtoReg_id,RegWrite_id,MemWrite_id;
-    wire  MemRead_id,ALUSrcA_id,ALUSrcB_id,RegDst_id,stall;
+    wire  MemRead_id,ALUSrcA_id,ALUSrcB_id,RegDst_id, Stall;
     wire[4:0]  RegWriteAddr_wb,RegWriteAddr_ex,ALUCode_id;
     wire[31:0] RegWriteData_wb,Imm_id,Sa_id,RsData_id,RtData_id;
     ID  ID (
@@ -104,11 +108,18 @@ module MipsPipelineCPU(clk, reset, JumpFlag, Instruction_id, ALU_A,
 
 //   ID->EX  Register
 
+wire ID_reg2;
+wire EX_reg2;
+wire MemWrite_ex;
+wire RegWrite_ex;
+wire MemtoReg_ex;
 
+assign ID_reg2 = {ALUCode_id, ALUSrcA_id, ALUSrcB_id, RegDst_id, MemRead_id, MemWrite_id, RegWrite_id, MemtoReg_id, Imm_id, Sa_id, RdAddr_id, RsAddr_id, RtAddr_id, RsData_id, RtData_id};
+assign EX_reg2 = {ALUCode_ex, ALUSrcA_ex, ALUSrcB_ex, RegDst_ex, MemRead_ex, MemWrite_ex, RegWrite_ex, MemtoReg_ex, Imm_ex, Sa_ex, RdAddr_ex, RsAddr_ex, RtAddr_ex, RsData_ex, RtData_ex};
 
+dffr #( .WIDTH(217)) ID_EX(ID_reg2, Stall, clk, EX_reg2);
 
-
-// EX Module   
+// EX Module
  wire[31:0] ALUResult_mem,ALUResult_ex,MemWriteData_ex;
  wire[4:0] RegWriteAddr_mem;
  wire RegWrite_mem;
@@ -140,9 +151,14 @@ assign ALUResult=ALUResult_ex;
 
 //EX->MEM
 
+wire EX_reg3;
+wire MEM_reg3;
+wire MemtoReg_mem;
 
+assign EX_reg3 = {MemWrite_ex, RegWrite_ex, MemtoReg_ex, ALUResult_ex, MemWriteData_ex, RegWriteAddr_ex};
+assign MEM_reg3 = {MemWrite_mem, RegWrite_mem, MemtoReg_mem, ALUResult_mem, MemWriteData_mem, RegWriteAddr_mem};
 
-
+dff #( .WIDTH(72)) EX_MEM(EX_reg3, clk, MEM_reg3);
 
 
 //MEM Module
@@ -155,9 +171,15 @@ assign ALUResult=ALUResult_ex;
 
 //MEM->WB
 
+wire MEM_reg4;
+wire WB_reg4;
+
+assign MEM_reg4 = {RegWrite_mem, MemtoReg_mem, ALUResult_mem};
+assign WB_reg4 = {RegWrite_wb, MemToReg_wb, ALUResult_wb};
+
+dff #( .WIDTH(96)) MEM_WB(MEM_reg4, clk, WB_reg4);
 
 //WB
   assign RegWriteData_wb=MemToReg_wb?MemDout_wb:ALUResult_wb;
-
 
 endmodule

@@ -65,15 +65,17 @@ module ID(clk,Instruction_id, NextPC_id, RegWrite_wb, RegWriteAddr_wb, RegWriteD
   assign Imm_id={{16{Instruction_id[15]}},Instruction_id[15:0]};
    
 //JumpAddress
-  wire [27:0]Instru_28;
-  assign Instru_28 = Instruction_id << 2;
-  assign JumpAddr = {NextPC_id[31:28], Instru_28};
+  // wire [27:0]Instru_28;
+  // assign Instru_28 = Instruction_id << 2;
+  // assign JumpAddr = {NextPC_id[31:28], Instru_28};
+
+  assign JumpAddr = {NextPC_id[31:28], Instruction_id[25:0], 2'b00}; //zhangchen
    
 //BranchAddrress 
   wire [31:0]Imm;
   wire co;
   assign Imm = Imm_id << 2;
-  adder_32bits adder01(NextPC_id, Imm, BranchAddr, 0, co);
+  adder_32bits adder01(NextPC_id, Imm, BranchAddr, 0 , co);
 
 
 //JrAddress
@@ -83,7 +85,7 @@ module ID(clk,Instruction_id, NextPC_id, RegWrite_wb, RegWriteAddr_wb, RegWriteD
 
   BranchTest zero_test(Z, ALUCode_id, RsData_id, RtData_id);
    
-//Hazard detectior   
+//Hazard detector   
   parameter   alu_beq=  5'b01010;
   parameter   alu_bne=  5'b01011;
   parameter   alu_bgez= 5'b01100;
@@ -91,9 +93,11 @@ module ID(clk,Instruction_id, NextPC_id, RegWrite_wb, RegWriteAddr_wb, RegWriteD
   parameter   alu_blez= 5'b01110;
   parameter   alu_bltz= 5'b01111;
 
-  HazardDetector(MemRead_ex, RegWriteAddr_ex, RsAddr_id, RtAddr_id, Stall, PC_IFWrite);
-    
-
+  //HazardDetector HazardDetector(MemRead_ex, RegWriteAddr_ex, RsAddr_id, RtAddr_id, Stall, PC_IFWrite);
+  
+  assign Stall = ((RegWriteAddr_ex==RsAddr_id)||(RegWriteAddr_ex==RtAddr_id))&&MemRead_ex;
+  assign PC_IFWrite = ~Stall;
+  
   //  Decode inst
    Decode  Decode(   
     // Outputs

@@ -59,10 +59,10 @@ module EX(RegDst_ex, ALUCode_ex, ALUSrcA_ex, ALUSrcB_ex, Imm_ex, Sa_ex, RsAddr_e
 
   wire [31:0] outA;
   mux4 mux1(RsData_ex, RegWriteData_wb, ALUResult_mem, 0, ForwardA, outA);
-  mux2 mux2(Sa_ex, outA, ALUSrcA_ex, ALU_A);
+  mux2 mux2(outA, Sa_ex, ALUSrcA_ex, ALU_A);
 
-  mux4 mux3(RtData_ex, RegWriteData_wb, ALUResult_mem, 0, ForwardA, MemWriteData_ex);
-  mux2 mux4(Imm_ex, MemWriteData_ex, ALUSrcB_ex, ALU_B);
+  mux4 mux3(RtData_ex, RegWriteData_wb, ALUResult_mem, 0, ForwardB, MemWriteData_ex);
+  mux2 mux4(MemWriteData_ex, Imm_ex, ALUSrcB_ex, ALU_B);
 
 //ALU inst
    ALU  ALU (
@@ -76,6 +76,6 @@ module EX(RegDst_ex, ALUCode_ex, ALUSrcA_ex, ALUSrcB_ex, Imm_ex, Sa_ex, RsAddr_e
 );
    
 //MUX for RegWriteAddr_ex
-  mux2 mux5(RdAddr_ex, RtAddr_ex, RegDst_ex, RegWriteAddr_ex);
+  mux2 mux5(RtAddr_ex, RdAddr_ex, RegDst_ex, RegWriteAddr_ex);
 
 endmodule

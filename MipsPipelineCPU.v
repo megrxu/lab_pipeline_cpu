@@ -36,9 +36,9 @@ module MipsPipelineCPU(clk, reset, JumpFlag, Instruction_id, ALU_A,
 //  output    ControlTest;
    
 //IF  module
-    wire[31:0] Instruction_id;
+   wire[31:0] Instruction_id;
    wire PC_IFWrite,J,JR,Z,IF_flush;
-   wire[31:0] JumpAddr,JrAddr,BranchAddr,NextPC_if,Instruction_if;
+   wire[31:0] JumpAddr, JrAddr, BranchAddr, NextPC_if, Instruction_if;
    assign JumpFlag={JR,J,Z};
    assign IF_flush=Z || J ||JR;
   
@@ -61,11 +61,11 @@ module MipsPipelineCPU(clk, reset, JumpFlag, Instruction_id, ALU_A,
 //   IF->ID Register
 wire IF_reg1;
 wire ID_reg1;
+wire [31:0] NextPC_id;
+assign IF_reg1 = {NextPC_if, Instruction_if};
+assign ID_reg1 = {NextPC_id, Instruction_id};
 
-assign IF_reg1 = {NextPC_if, Instruction_if}
-assign ID_reg1 = {NextPC_id, Instruction_id}
-
-dffre #( .WIDTH(64)) IF_ID(IF_reg1 , PC_IFWrite, IF_flush, clk, ID_reg1);
+dffre #( .WIDTH(64)) IF_ID({NextPC_if, Instruction_if} , PC_IFWrite, IF_flush||reset, clk, {NextPC_id, Instruction_id});
 
 //  ID Module  
     wire[4:0] RtAddr_id,RdAddr_id,RsAddr_id;
@@ -112,12 +112,14 @@ wire ID_reg2;
 wire EX_reg2;
 wire MemWrite_ex;
 wire RegWrite_ex;
-wire MemtoReg_ex;
-
+wire MemtoReg_ex, ALUSrcA_ex, ALUSrcB_ex;
+wire [4:0] ALUCode_ex, RdAddr_ex, RtAddr_ex, RsAddr_ex;
+wire [31:0] Imm_ex, Sa_ex, RsData_ex, RtData_ex, ALU_result_ex;
+wire RegDst_ex;
 assign ID_reg2 = {ALUCode_id, ALUSrcA_id, ALUSrcB_id, RegDst_id, MemRead_id, MemWrite_id, RegWrite_id, MemtoReg_id, Imm_id, Sa_id, RdAddr_id, RsAddr_id, RtAddr_id, RsData_id, RtData_id};
 assign EX_reg2 = {ALUCode_ex, ALUSrcA_ex, ALUSrcB_ex, RegDst_ex, MemRead_ex, MemWrite_ex, RegWrite_ex, MemtoReg_ex, Imm_ex, Sa_ex, RdAddr_ex, RsAddr_ex, RtAddr_ex, RsData_ex, RtData_ex};
 
-dffr #( .WIDTH(217)) ID_EX(ID_reg2, Stall, clk, EX_reg2);
+dffre #( .WIDTH(155)) ID_EX({ALUCode_id, ALUSrcA_id, ALUSrcB_id, RegDst_id, MemRead_id, MemWrite_id, RegWrite_id, MemtoReg_id, Imm_id, Sa_id, RdAddr_id, RsAddr_id, RtAddr_id, RsData_id, RtData_id}, 1, reset||Stall, clk, {ALUCode_ex, ALUSrcA_ex, ALUSrcB_ex, RegDst_ex, MemRead_ex, MemWrite_ex, RegWrite_ex, MemtoReg_ex, Imm_ex, Sa_ex, RdAddr_ex, RsAddr_ex, RtAddr_ex, RsData_ex, RtData_ex});
 
 // EX Module
  wire[31:0] ALUResult_mem,ALUResult_ex,MemWriteData_ex;
@@ -144,7 +146,7 @@ dffr #( .WIDTH(217)) ID_EX(ID_reg2, Stall, clk, EX_reg2);
  .RegWriteAddr_ex(RegWriteAddr_ex), 
  .ALUResult_ex(ALUResult_ex), 
  .MemWriteData_ex(MemWriteData_ex), 
- .ALU_A(ALU_A), 
+ .ALU_A(ALU_A),
  .ALU_B(ALU_B));
 
 assign ALUResult=ALUResult_ex;
@@ -154,15 +156,16 @@ assign ALUResult=ALUResult_ex;
 wire EX_reg3;
 wire MEM_reg3;
 wire MemtoReg_mem;
+wire MemWrite_mem;
+wire [31:0]MemWriteData_mem;
 
 assign EX_reg3 = {MemWrite_ex, RegWrite_ex, MemtoReg_ex, ALUResult_ex, MemWriteData_ex, RegWriteAddr_ex};
 assign MEM_reg3 = {MemWrite_mem, RegWrite_mem, MemtoReg_mem, ALUResult_mem, MemWriteData_mem, RegWriteAddr_mem};
 
-dff #( .WIDTH(72)) EX_MEM(EX_reg3, clk, MEM_reg3);
-
+dffre #( .WIDTH(72)) EX_MEM({MemWrite_ex, RegWrite_ex, MemtoReg_ex, ALUResult_ex, MemWriteData_ex, RegWriteAddr_ex}, 1, reset, clk, {MemWrite_mem, RegWrite_mem, MemtoReg_mem, ALUResult_mem, MemWriteData_mem, RegWriteAddr_mem});
 
 //MEM Module
-  DataRAM   DataRAM(
+  DataRAM DataRAM(
   .addr(ALUResult_mem[7:2]),
   .clk(clk),
   .din(MemWriteData_mem),
@@ -173,11 +176,13 @@ dff #( .WIDTH(72)) EX_MEM(EX_reg3, clk, MEM_reg3);
 
 wire MEM_reg4;
 wire WB_reg4;
+wire MemToReg_wb;
+wire [31:0] ALUResult_wb;
 
-assign MEM_reg4 = {RegWrite_mem, MemtoReg_mem, ALUResult_mem};
-assign WB_reg4 = {RegWrite_wb, MemToReg_wb, ALUResult_wb};
+assign MEM_reg4 = {RegWrite_mem, MemtoReg_mem, ALUResult_mem, RegWriteAddr_mem};
+assign WB_reg4 = {RegWrite_wb, MemToReg_wb, ALUResult_wb, RegWriteAddr_wb};
 
-dff #( .WIDTH(96)) MEM_WB(MEM_reg4, clk, WB_reg4);
+dffre #( .WIDTH(39)) MEM_WB({RegWrite_mem, MemtoReg_mem, ALUResult_mem, RegWriteAddr_mem}, 1, reset, clk, {RegWrite_wb, MemToReg_wb, ALUResult_wb, RegWriteAddr_wb});
 
 //WB
   assign RegWriteData_wb=MemToReg_wb?MemDout_wb:ALUResult_wb;

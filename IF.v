@@ -30,23 +30,19 @@ module IF(clk, reset, Z, J, JR, PC_IFWrite, JumpAddr,
     input [31:0] JrAddr;
     input [31:0] BranchAddr;
     output [31:0] Instruction_if;
-    output [31:0] PC,NextPC_if;
-
+    output [31:0] NextPC_if;
+    output [31:0] PC;
 // MUX for PC
-reg[31:0] PC_in;
+wire [31:0] PC_in;
 
 mux8 mux8(NextPC_if, BranchAddr, JumpAddr, 0, JrAddr, 0, 0, 0, {JR, J, Z}, PC_in);
 
 //PC REG
-always @(*) begin
-  if (PC_IFWrite) begin
-    PC = PC_in;
-  end 
-end
+dffre #(.WIDTH(32))PC_reg(PC_in, PC_IFWrite, reset, clk, PC);
 
 //Adder for NextPC
-wire co;
-adder_32bits(PC, 4, NextPC_if, 0, co);
+adder_32bits adder_32bits(PC, 4, NextPC_if, 0, co);
+
 
 //ROM
 InstructionROM  InstructionROM(

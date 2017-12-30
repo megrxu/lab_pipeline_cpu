@@ -139,18 +139,18 @@ always @(*)
       alu_andi: ALUResult = ANDIResult;
       alu_xori: ALUResult = XORIResult;
       alu_ori:  ALUResult = ORIResult;
-      alu_jr:   ALUResult = JRResult;
+      alu_jr:   ALUResult = JRResult; //
       alu_sll:  ALUResult = SLLResult;
       alu_srl:  ALUResult = SRLResult;
       alu_sra:  ALUResult = SRAResult;
       alu_slt:  ALUResult = {15'd0, SLTResult};
       alu_sltu: ALUResult = {15'd0, SLTUResult};
-      alu_beq:  ALUResult = 32'bx;
-      alu_bne:  ALUResult = 32'bx;
-      alu_bgez: ALUResult = 32'bx;
-      alu_bgtz: ALUResult = 32'bx;
-      alu_blez: ALUResult = 32'bx;
-      alu_bltz: ALUResult = 32'bx;
+      alu_beq:  ALUResult = 32'b0;
+      alu_bne:  ALUResult = 32'b0;
+      alu_bgez: ALUResult = 32'b0;
+      alu_bgtz: ALUResult = 32'b0;
+      alu_blez: ALUResult = 32'b0;
+      alu_bltz: ALUResult = 32'b0;
     endcase
   end
   
